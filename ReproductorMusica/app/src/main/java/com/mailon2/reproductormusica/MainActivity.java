@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer reproductor;
     private AudioManager audioManager;
     private CountDownTimer countDownTimer=null;
+    private CountDownTimer countDownTimerLetra=null;
 
     private ListView listaCanciones;
     private Button anterior,play,siguiente;
@@ -32,10 +34,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> adaptador;
     private SeekBar volumenSeekBar;
     private SeekBar duracionSeekBar;
+    private TextView textoCancion;
 
     private  boolean accionReproduccion = false;
     private int cancionSelecionada = 0;
     private int cancionContador = 0;
+
 
     public void botonPlay(View view){
         reproducirCancion();
@@ -101,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             int e = reproductor.getDuration();
             int a= (e/1000);
             desplazamientoSeekBar(a);
+            desplazamientoLetra(cancionSelecionada);
             //Toast.makeText(this, Integer.toString(a)+":"+Integer.toString(b) , Toast.LENGTH_LONG).show();
             cancionSelecionada=-1;
         }
@@ -154,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 cancionContador=i;
                 detenerCancion();
                 countDownTimer.cancel();
+                countDownTimerLetra.cancel();
             }
         });
 
@@ -199,6 +205,27 @@ public class MainActivity extends AppCompatActivity {
         countDownTimer.start();
     }
 
+
+    public void desplazamientoLetra(int entrada){
+        long durac = reproductor.getDuration();
+
+        String cancion = canciones.get(entrada);
+        textoCancion.setText("Canción: "+cancion);
+
+        countDownTimerLetra = new CountDownTimer(durac,10000){
+            public void onTick(long millisecond){
+                textoCancion.setTranslationX(1070f);
+                textoCancion.setTranslationY(100f);
+                textoCancion.animate().translationXBy(-2000f).setDuration(10000);
+            }
+            public void onFinish(){
+
+            }
+        };
+
+        countDownTimerLetra.start();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -208,6 +235,8 @@ public class MainActivity extends AppCompatActivity {
         play = findViewById(R.id.buttonPlay);
         siguiente = findViewById(R.id.buttonSiguiente);
         listaCanciones = findViewById(R.id.listViewCanciones);
+        textoCancion = findViewById(R.id.textViewLetra);
+
 
         play.setBackgroundDrawable(getResources().getDrawable(R.raw.play));
 
@@ -225,5 +254,6 @@ public class MainActivity extends AppCompatActivity {
         adaptador=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,canciones);
         listaCanciones.setAdapter(adaptador);
         controladorSonido();
+
     }
 }
